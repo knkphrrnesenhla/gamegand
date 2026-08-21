@@ -1,0 +1,317 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.1.0
+  description: API specification
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: marketplace
+    description: Card marketplace operations
+  - name: trades
+    description: Card trade operations
+  - name: chat
+    description: Marketplace chat operations
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      description: Returns server health status
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+  /marketplace/summary:
+    get:
+      operationId: getMarketplaceSummary
+      tags: [marketplace]
+      summary: Get marketplace summary
+      responses:
+        "200":
+          description: Marketplace overview
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MarketplaceSummary"
+  /marketplace/listings:
+    get:
+      operationId: listListings
+      tags: [marketplace]
+      summary: List card listings
+      parameters:
+        - name: game
+          in: query
+          schema:
+            type: string
+        - name: category
+          in: query
+          schema:
+            type: string
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: sort
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Card listings
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Listing"
+    post:
+      operationId: createListing
+      tags: [marketplace]
+      summary: Create a card listing
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ListingInput"
+      responses:
+        "201":
+          description: Created listing
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Listing"
+  /marketplace/listings/{id}:
+    get:
+      operationId: getListing
+      tags: [marketplace]
+      summary: Get a listing
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Listing details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Listing"
+        "404":
+          description: Listing not found
+  /marketplace/packs:
+    get:
+      operationId: listPacks
+      tags: [marketplace]
+      summary: List random card packs
+      responses:
+        "200":
+          description: Random card packs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Pack"
+  /trades:
+    get:
+      operationId: listTrades
+      tags: [trades]
+      summary: List trade offers
+      responses:
+        "200":
+          description: Trade offers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Trade"
+    post:
+      operationId: createTrade
+      tags: [trades]
+      summary: Create a trade offer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TradeInput"
+      responses:
+        "201":
+          description: Created trade
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Trade"
+  /conversations:
+    get:
+      operationId: listConversations
+      tags: [chat]
+      summary: List conversations
+      responses:
+        "200":
+          description: Conversations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Conversation"
+  /conversations/{id}/messages:
+    get:
+      operationId: listMessages
+      tags: [chat]
+      summary: List messages
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Messages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Message"
+    post:
+      operationId: sendMessage
+      tags: [chat]
+      summary: Send a message
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MessageInput"
+      responses:
+        "201":
+          description: Sent message
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+    Listing:
+      type: object
+      required: [id, name, game, setName, rarity, condition, price, seller, image, listedAt]
+      properties:
+        id: { type: number }
+        name: { type: string }
+        game: { type: string }
+        setName: { type: string }
+        rarity: { type: string }
+        condition: { type: string }
+        price: { type: number }
+        seller: { type: string }
+        image: { type: string }
+        listedAt: { type: string }
+        featured: { type: boolean }
+        tradeable: { type: boolean }
+    ListingInput:
+      type: object
+      required: [name, game, setName, rarity, condition, price, image]
+      properties:
+        name: { type: string }
+        game: { type: string }
+        setName: { type: string }
+        rarity: { type: string }
+        condition: { type: string }
+        price: { type: number }
+        image: { type: string }
+        tradeable: { type: boolean }
+    Pack:
+      type: object
+      required: [id, name, game, description, price, image, cardsPerPack, stock]
+      properties:
+        id: { type: number }
+        name: { type: string }
+        game: { type: string }
+        description: { type: string }
+        price: { type: number }
+        image: { type: string }
+        cardsPerPack: { type: number }
+        stock: { type: number }
+        accent: { type: string }
+    MarketplaceSummary:
+      type: object
+      required: [activeListings, tradesToday, packsSold, averagePrice]
+      properties:
+        activeListings: { type: number }
+        tradesToday: { type: number }
+        packsSold: { type: number }
+        averagePrice: { type: number }
+    Trade:
+      type: object
+      required: [id, offeredCard, requestedCard, trader, status, createdAt]
+      properties:
+        id: { type: number }
+        offeredCard: { type: string }
+        requestedCard: { type: string }
+        trader: { type: string }
+        status: { type: string }
+        createdAt: { type: string }
+        image: { type: string }
+    TradeInput:
+      type: object
+      required: [offeredCard, requestedCard]
+      properties:
+        offeredCard: { type: string }
+        requestedCard: { type: string }
+        image: { type: string }
+    Conversation:
+      type: object
+      required: [id, participant, listingName, preview, updatedAt, unread]
+      properties:
+        id: { type: number }
+        participant: { type: string }
+        listingName: { type: string }
+        preview: { type: string }
+        updatedAt: { type: string }
+        unread: { type: number }
+        avatar: { type: string }
+    Message:
+      type: object
+      required: [id, conversationId, text, sender, sentAt, mine]
+      properties:
+        id: { type: number }
+        conversationId: { type: number }
+        text: { type: string }
+        sender: { type: string }
+        sentAt: { type: string }
+        mine: { type: boolean }
+    MessageInput:
+      type: object
+      required: [text]
+      properties:
+        text: { type: string, minLength: 1 }
+

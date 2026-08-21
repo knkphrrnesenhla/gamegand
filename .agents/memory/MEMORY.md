@@ -1,0 +1,1 @@
+- [Orval/Zod numeric types](orval-zod-compatibility.md) — use OpenAPI number instead of integer to keep generated Zod schemas compatible

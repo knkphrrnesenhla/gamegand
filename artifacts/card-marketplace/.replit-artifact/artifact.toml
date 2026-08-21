@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "CardMarket"
+description = "ตลาดกลางการ์ดสะสมออนไลน์สำหรับการ์ด Pokemon, One Piece และชุดยอดนิยม รองรับการซื้อขาย การแลกเปลี่ยน การ์ดสุ่ม และแชทต่อรองราคากับผู้ขาย"
+version = "1.0.0"
+id = "artifacts/card-marketplace"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 24889
+
+[services.development]
+run = "pnpm --filter @workspace/card-marketplace run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/card-marketplace", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/card-marketplace/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "24889"
+BASE_PATH = "/"
